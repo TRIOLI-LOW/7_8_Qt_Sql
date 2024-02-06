@@ -44,10 +44,10 @@ public:
 
     void AddDataBase(QString driver, QString nameDB = "");
     void DisconnectFromDataBase(QString nameDb = "");
-    void RequestToDB(QString request, int requestType);
+    void RequestToDB(int requestType);
     QSqlError GetLastError(void);
     void ConnectToDataBase(QVector<QString> dataForConnect);
-    void ReadAnswerFromDB(int requestType);
+    void ReadAnswerFromDB(QString request,int requestType);
 
 signals:
 

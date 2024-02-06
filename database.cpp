@@ -7,7 +7,7 @@ DataBase::DataBase(QObject *parent)
     dataBase = new QSqlDatabase();
     simpleQuery = new QSqlQuery();
 
-    tableModel = new QSqlTableModel();
+
     queryModel = new QSqlQueryModel();
 
 }
@@ -52,7 +52,7 @@ void DataBase::ConnectToDataBase(QVector<QString> data)
     } else {
         qDebug() << "Failed to open database. Error: " << dataBase->lastError().text();
     }
-
+    tableModel = new QSqlTableModel();
     emit sig_SendStatusConnection(status);
 }
 /*!
@@ -71,7 +71,7 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
  * \param request - SQL запрос
  * \return
  */
-void DataBase::RequestToDB(QString request, int requestType)
+void DataBase::ReadAnswerFromDB(QString request,int requestType)
 {
     *simpleQuery = QSqlQuery(*dataBase);
     QSqlError err;
@@ -85,21 +85,22 @@ void DataBase::RequestToDB(QString request, int requestType)
     ///Тут должен быть код ДЗ
 
 }
-
-void DataBase::ReadAnswerFromDB(int requestType){
+void DataBase::RequestToDB( int requestType)
+{
     switch(requestType){
 
     case requestAllFilms:{
 
         tableModel->setTable("film");
+        tableModel->select();
         tableModel->setHeaderData(0,Qt::Horizontal,"title");
         tableModel->setHeaderData(1,Qt::Horizontal,"description");
 
 
-        if(!tableModel->select()){
-            qDebug() << "Error in select query:" << tableModel->lastError().text();
-            return;
-        }
+        //if(!){
+        //   qDebug() << "Error in select query:" << tableModel->lastError().text();
+        //    return;
+        //}
 
 
         emit sig_SendDataFromDB(tableModel, requestAllFilms);

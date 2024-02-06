@@ -103,17 +103,17 @@ void MainWindow::on_pb_request_clicked()
 
     if(ui->cb_category->currentText() == "Все"){
 
-        auto allCombo = [&]{dataBase->RequestToDB(request, requestAllFilms);};
+        auto allCombo = [&]{dataBase->ReadAnswerFromDB(request, requestAllFilms);};
         QtConcurrent::run(allCombo);
     }
     else if(ui->cb_category->currentText() == "Комедии"){
 
-        auto Comedy = [&]{dataBase->RequestToDB(requestComedyFilms, requestComedy);};
+        auto Comedy = [&]{dataBase->ReadAnswerFromDB(requestComedyFilms, requestComedy);};
         QtConcurrent::run(Comedy);
     }
     if(ui->cb_category->currentText() == "Ужасы"){
 
-        auto Horror = [&]{dataBase->RequestToDB(requestHorrorFilms,requestHorrors);};
+        auto Horror = [&]{dataBase->ReadAnswerFromDB(requestHorrorFilms, requestHorrors);};
         QtConcurrent::run(Horror);
     }
 
@@ -191,13 +191,13 @@ void MainWindow::ReceiveStatusRequestToDB(QSqlError err, int requestType)
     }
     else{
         if(requestType == requestAllFilms ){
-        dataBase->ReadAnswerFromDB(requestAllFilms);
+        dataBase->RequestToDB(requestAllFilms);
         }
         else if(requestType == requestComedy){
-            dataBase->ReadAnswerFromDB(requestComedy);
+            dataBase->RequestToDB(requestComedy);
         }
-        else if(requestType == requestHorrors){
-            dataBase->ReadAnswerFromDB(requestHorrors);
+        else{
+            dataBase->RequestToDB(requestHorrors);
         }
 
     }
