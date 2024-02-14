@@ -49,10 +49,13 @@ void DataBase::ConnectToDataBase(QVector<QString> data)
     status = dataBase->open();
     if (status) {
         qDebug() << "Database opened successfully.";
+        tableModel = new QSqlTableModel(this, *dataBase);
+        queryModel = new QSqlQueryModel();
+
     } else {
         qDebug() << "Failed to open database. Error: " << dataBase->lastError().text();
     }
-    tableModel = new QSqlTableModel();
+
     emit sig_SendStatusConnection(status);
 }
 /*!
@@ -73,12 +76,12 @@ void DataBase::DisconnectFromDataBase(QString nameDb)
  */
 void DataBase::ReadAnswerFromDB(QString request,int requestType)
 {
-    *simpleQuery = QSqlQuery(*dataBase);
+    *simpleQuery = QSqlQuery(request, *dataBase);
     QSqlError err;
 
     if(simpleQuery->exec(request) == false){
         err = simpleQuery->lastError();
-        qDebug() << "Error executing query: " << err.text();
+        qDebug() << "22Error executing query: " << err.text();
     }
     emit sig_SendStatusRequest(err, requestType);
 
@@ -93,14 +96,9 @@ void DataBase::RequestToDB( int requestType)
 
         tableModel->setTable("film");
         tableModel->select();
-        tableModel->setHeaderData(0,Qt::Horizontal,"title");
-        tableModel->setHeaderData(1,Qt::Horizontal,"description");
 
-
-        //if(!){
-        //   qDebug() << "Error in select query:" << tableModel->lastError().text();
-        //    return;
-        //}
+        tableModel->setHeaderData(0, Qt::Horizontal, ("title"));
+        tableModel->setHeaderData(1, Qt::Horizontal, ("description"));
 
 
         emit sig_SendDataFromDB(tableModel, requestAllFilms);
@@ -108,12 +106,15 @@ void DataBase::RequestToDB( int requestType)
     }
 
     case requestHorrors:{
-        queryModel->setQuery("SELECT title, description FROM film f "
+
+        queryModel->setQuery("SELECT title, description FROM film  "
                              "JOIN film_category fc on f.film_id = fc.film_id "
-                             "JOIN category c on c.category_id = fc.category_id"
-                             " WHERE c.name = 'Horror'");
-        queryModel->setHeaderData(0,Qt::Horizontal,"title");
-        queryModel->setHeaderData(1,Qt::Horizontal,"description");
+                             "JOIN category c on c.category_id = fc.category_id "
+                             "WHERE c.name = 'Horror'");
+
+        queryModel->setHeaderData(1,Qt::Horizontal,"title");
+        queryModel->setHeaderData(2,Qt::Horizontal,"description");
+
 
         emit sig_SendDataFromDB(queryModel, requestHorrors);
         break;
@@ -125,8 +126,10 @@ void DataBase::RequestToDB( int requestType)
                              "JOIN film_category fc on f.film_id = fc.film_id "
                              "JOIN category c on c.category_id = fc.category_id"
                              " WHERE c.name = 'Comedy'");
+
         queryModel->setHeaderData(0, Qt::Horizontal, "title");
         queryModel->setHeaderData(1, Qt::Horizontal, "description");
+
 
         emit sig_SendDataFromDB(queryModel, requestComedy);
         break;

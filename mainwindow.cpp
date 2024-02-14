@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
      *  Сигнал для подключения к БД
      */
     connect(dataBase, &DataBase::sig_SendStatusConnection, this, &MainWindow::ReceiveStatusConnectionToDB);
+
     connect(dataBase,&DataBase::sig_SendStatusRequest, this, &MainWindow::ReceiveStatusRequestToDB);
 
 }
@@ -103,17 +104,21 @@ void MainWindow::on_pb_request_clicked()
 
     if(ui->cb_category->currentText() == "Все"){
 
-        auto allCombo = [&]{dataBase->ReadAnswerFromDB(request, requestAllFilms);};
+        auto allCombo = [&](){dataBase->ReadAnswerFromDB( "SELECT title, description FROM film", requestAllFilms);};
         QtConcurrent::run(allCombo);
+        qDebug() << "qqqqq";
     }
-    else if(ui->cb_category->currentText() == "Комедии"){
 
-        auto Comedy = [&]{dataBase->ReadAnswerFromDB(requestComedyFilms, requestComedy);};
+    else if(ui->cb_category->currentText() == "Комедия"){
+
+        auto Comedy = [&](){dataBase->ReadAnswerFromDB(requestComedyFilms, requestComedy);};
         QtConcurrent::run(Comedy);
+         qDebug() << "222111";
     }
-    if(ui->cb_category->currentText() == "Ужасы"){
 
-        auto Horror = [&]{dataBase->ReadAnswerFromDB(requestHorrorFilms, requestHorrors);};
+    else if(ui->cb_category->currentText() == "Ужасы"){
+
+        auto Horror = [&](){dataBase->ReadAnswerFromDB(requestHorrorFilms, requestHorrors);};
         QtConcurrent::run(Horror);
     }
 
@@ -129,10 +134,12 @@ void MainWindow::on_pb_request_clicked()
  */
 void MainWindow::ScreenDataFromDB(QAbstractItemModel *model, int typeRequest)
 {
+
     switch(typeRequest){
 
     case requestAllFilms:{
        QSqlTableModel* tablemodel = qobject_cast<QSqlTableModel*>(model);
+
        ui->tableView->setModel(tablemodel);
        ui->tableView->show();
         break;
@@ -140,14 +147,15 @@ void MainWindow::ScreenDataFromDB(QAbstractItemModel *model, int typeRequest)
 
     case requestHorrors:{
         QSqlQueryModel* querymodel = qobject_cast<QSqlQueryModel*>(model);
+
         ui->tableView->setModel(querymodel);
         ui->tableView->show();
          break;
     }
     case requestComedy:{
 
-        QSqlQueryModel* querymodel = qobject_cast<QSqlQueryModel*>(model);
-        ui->tableView->setModel(querymodel);
+        QSqlQueryModel* querymodel_1 = qobject_cast<QSqlQueryModel*>(model);
+        ui->tableView->setModel(querymodel_1);
         ui->tableView->show();
          break;
     }
