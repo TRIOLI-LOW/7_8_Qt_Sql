@@ -50,7 +50,7 @@ void DataBase::ConnectToDataBase(QVector<QString> data)
     if (status) {
         qDebug() << "Database opened successfully.";
         tableModel = new QSqlTableModel(this, *dataBase);
-        queryModel = new QSqlQueryModel();
+
 
     } else {
         qDebug() << "Failed to open database. Error: " << dataBase->lastError().text();
@@ -78,13 +78,14 @@ void DataBase::ReadAnswerFromDB(QString request,int requestType)
 {
     *simpleQuery = QSqlQuery(request, *dataBase);
     QSqlError err;
-
+    qDebug ()<<"Read Answer";
     if(simpleQuery->exec(request) == false){
         err = simpleQuery->lastError();
-        qDebug() << "22Error executing query: " << err.text();
+        qDebug() << "Error executing query: " << err.text();
     }
-    emit sig_SendStatusRequest(err, requestType);
 
+    emit sig_SendStatusRequest(err, requestType);
+    qDebug ()<< "Read Answer  ___ emit signals complite";
     ///Тут должен быть код ДЗ
 
 }
@@ -93,12 +94,25 @@ void DataBase::RequestToDB( int requestType)
     switch(requestType){
 
     case requestAllFilms:{
-
+        qDebug()<< "requestAllFilms?";
         tableModel->setTable("film");
         tableModel->select();
 
-        tableModel->setHeaderData(0, Qt::Horizontal, ("title"));
-        tableModel->setHeaderData(1, Qt::Horizontal, ("description"));
+        //tableModel->removeColumn(tableModel->fieldIndex("id"));
+        qDebug() <<tableModel->columnCount();
+
+        for(auto i = 0 ; i < tableModel->columnCount() ; ++i){
+            qDebug() <<tableModel->columnCount();
+            if(tableModel->headerData(i, Qt::Horizontal).toString() != "title"
+             && tableModel->headerData(i,Qt::Horizontal).toString() != "description")
+            {tableModel->removeColumn(i);
+            --i;}
+
+       }
+
+
+        // tableModel->setHeaderData(0, Qt::Horizontal, ("title"));
+        //tableModel->setHeaderData(1, Qt::Horizontal, ("description"));
 
 
         emit sig_SendDataFromDB(tableModel, requestAllFilms);
@@ -106,32 +120,37 @@ void DataBase::RequestToDB( int requestType)
     }
 
     case requestHorrors:{
-
-        queryModel->setQuery("SELECT title, description FROM film  "
+        queryModel = new QSqlQueryModel(this);
+        qDebug()<< "requestHorrors?";
+        queryModel->setQuery("SELECT title, description FROM film f "
                              "JOIN film_category fc on f.film_id = fc.film_id "
-                             "JOIN category c on c.category_id = fc.category_id "
-                             "WHERE c.name = 'Horror'");
+                             "JOIN category c on c.category_id = fc.category_id"
+                             " WHERE c.name = 'Horror'", *dataBase);
 
         queryModel->setHeaderData(1,Qt::Horizontal,"title");
         queryModel->setHeaderData(2,Qt::Horizontal,"description");
 
 
         emit sig_SendDataFromDB(queryModel, requestHorrors);
+        qDebug()<< "emit complite";
         break;
     }
 
     case requestComedy:{
+        queryModel = new QSqlQueryModel(this);
+        qDebug()<< "requestComedy?";
 
         queryModel->setQuery("SELECT title, description FROM film f "
                              "JOIN film_category fc on f.film_id = fc.film_id "
                              "JOIN category c on c.category_id = fc.category_id"
-                             " WHERE c.name = 'Comedy'");
+                             " WHERE c.name = 'Comedy'", *dataBase);
 
         queryModel->setHeaderData(0, Qt::Horizontal, "title");
         queryModel->setHeaderData(1, Qt::Horizontal, "description");
 
 
         emit sig_SendDataFromDB(queryModel, requestComedy);
+        qDebug()<< "emit complite";
         break;
     }
 

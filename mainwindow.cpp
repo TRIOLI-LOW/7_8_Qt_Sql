@@ -104,22 +104,23 @@ void MainWindow::on_pb_request_clicked()
 
     if(ui->cb_category->currentText() == "Все"){
 
-        auto allCombo = [&](){dataBase->ReadAnswerFromDB( "SELECT title, description FROM film", requestAllFilms);};
+        auto allCombo = [&](){dataBase->ReadAnswerFromDB( request, requestAllFilms);};
         QtConcurrent::run(allCombo);
-        qDebug() << "qqqqq";
+        qDebug() << "AllCombo clicked";
     }
 
     else if(ui->cb_category->currentText() == "Комедия"){
 
-        auto Comedy = [&](){dataBase->ReadAnswerFromDB(requestComedyFilms, requestComedy);};
+        auto Comedy = [&](){dataBase->ReadAnswerFromDB(request, requestComedy);};
         QtConcurrent::run(Comedy);
-         qDebug() << "222111";
+         qDebug() << "Comedy clicked";
     }
 
     else if(ui->cb_category->currentText() == "Ужасы"){
 
-        auto Horror = [&](){dataBase->ReadAnswerFromDB(requestHorrorFilms, requestHorrors);};
+        auto Horror = [&](){dataBase->ReadAnswerFromDB(request, requestHorrors);};
         QtConcurrent::run(Horror);
+        qDebug()<< "Horror clicked";
     }
 
 
@@ -139,7 +140,7 @@ void MainWindow::ScreenDataFromDB(QAbstractItemModel *model, int typeRequest)
 
     case requestAllFilms:{
        QSqlTableModel* tablemodel = qobject_cast<QSqlTableModel*>(model);
-
+        qDebug() << "AllFilms ____ScreenDataFromDB";
        ui->tableView->setModel(tablemodel);
        ui->tableView->show();
         break;
@@ -147,7 +148,7 @@ void MainWindow::ScreenDataFromDB(QAbstractItemModel *model, int typeRequest)
 
     case requestHorrors:{
         QSqlQueryModel* querymodel = qobject_cast<QSqlQueryModel*>(model);
-
+        qDebug() << "Horrors _____ScreenDataFromDB";
         ui->tableView->setModel(querymodel);
         ui->tableView->show();
          break;
@@ -155,6 +156,7 @@ void MainWindow::ScreenDataFromDB(QAbstractItemModel *model, int typeRequest)
     case requestComedy:{
 
         QSqlQueryModel* querymodel_1 = qobject_cast<QSqlQueryModel*>(model);
+        qDebug() << "Comedy _____ScreenDataFromDB";
         ui->tableView->setModel(querymodel_1);
         ui->tableView->show();
          break;
