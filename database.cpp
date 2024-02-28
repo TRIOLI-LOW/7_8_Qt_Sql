@@ -6,14 +6,16 @@ DataBase::DataBase(QObject *parent)
 
     dataBase = new QSqlDatabase();
     simpleQuery = new QSqlQuery();
-
-
     queryModel = new QSqlQueryModel();
 
 }
 
 DataBase::~DataBase()
+
 {
+    delete simpleQuery;
+    delete queryModel;
+    delete tableModel;
     delete dataBase;
 }
 
@@ -26,6 +28,7 @@ void DataBase::AddDataBase(QString driver, QString nameDB)
 {
 
     *dataBase = QSqlDatabase::addDatabase(driver, nameDB);
+     tableModel = new QSqlTableModel(this, *dataBase);
 
 }
 
@@ -49,7 +52,7 @@ void DataBase::ConnectToDataBase(QVector<QString> data)
     status = dataBase->open();
     if (status) {
         qDebug() << "Database opened successfully.";
-        tableModel = new QSqlTableModel(this, *dataBase);
+
 
 
     } else {
@@ -98,7 +101,7 @@ void DataBase::RequestToDB( int requestType)
         tableModel->setTable("film");
         tableModel->select();
 
-        //tableModel->removeColumn(tableModel->fieldIndex("id"));
+
         qDebug() <<tableModel->columnCount();
 
         for(auto i = 0 ; i < tableModel->columnCount() ; ++i){
@@ -120,15 +123,15 @@ void DataBase::RequestToDB( int requestType)
     }
 
     case requestHorrors:{
-        queryModel = new QSqlQueryModel(this);
+
         qDebug()<< "requestHorrors?";
         queryModel->setQuery("SELECT title, description FROM film f "
                              "JOIN film_category fc on f.film_id = fc.film_id "
                              "JOIN category c on c.category_id = fc.category_id"
                              " WHERE c.name = 'Horror'", *dataBase);
 
-        queryModel->setHeaderData(1,Qt::Horizontal,"title");
-        queryModel->setHeaderData(2,Qt::Horizontal,"description");
+        queryModel->setHeaderData(0,Qt::Horizontal,"title");
+        queryModel->setHeaderData(1,Qt::Horizontal,"description");
 
 
         emit sig_SendDataFromDB(queryModel, requestHorrors);
@@ -137,7 +140,7 @@ void DataBase::RequestToDB( int requestType)
     }
 
     case requestComedy:{
-        queryModel = new QSqlQueryModel(this);
+
         qDebug()<< "requestComedy?";
 
         queryModel->setQuery("SELECT title, description FROM film f "
